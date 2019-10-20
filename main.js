@@ -8,8 +8,15 @@ function tokenize(input) {
         return { path: result[1], value: result[2] };
     });
 }
-function stringify(tokens) {
+function stringifyTokens(tokens) {
     return tokens.map(x => x.path + x.value).join(" ");
+}
+function stringifyTree(tree) {
+    if (typeof tree === "string")
+        return tree;
+    return "["
+        + (tree.head === "left" ? "!" : "") + stringifyTree(tree.left) + " "
+        + (tree.head === "right" ? "!" : "") + stringifyTree(tree.right) + "]";
 }
 function serialize(tree, path = "") {
     if (typeof tree === "string")
@@ -60,14 +67,30 @@ function test() {
         let tokens = serialize(tree);
         let tree2 = parse(tokens)[0].value;
         let tokens2 = serialize(tree2);
-        console.log("tree: " + JSON.stringify(tree));
-        console.log("tree: " + JSON.stringify(tree2));
-        console.log("tokens: " + stringify(tokens));
-        console.log("tokens: " + stringify(tokens2));
+        console.log("tree: " + stringifyTree(tree));
+        console.log("tree: " + stringifyTree(tree2));
+        console.log("tokens: " + stringifyTokens(tokens));
+        console.log("tokens: " + stringifyTokens(tokens2));
         delete tree.head;
         delete tree2.head;
-        if (JSON.stringify(tree) != JSON.stringify(tree2) || stringify(tokens) != stringify(tokens2))
+        if (stringifyTree(tree) != stringifyTree(tree2) || stringifyTokens(tokens) != stringifyTokens(tokens2))
             console.log("boom");
         console.log("=====");
     }
 }
+function $(id) { return document.getElementById(id); }
+;
+window.onload = () => {
+    $("tokens").oninput = () => {
+        $("tokensError").innerText = "";
+        try {
+            $("tree").innerText = stringifyTree(parse(tokenize($("tokens").value))[0].value);
+        }
+        catch (e) {
+            $("tokensError").innerText = "Error: " + e.message;
+        }
+    };
+    $("tree").oninput = () => {
+        //$("tokens").value = stringifyTokens(serialize(parseTree($("tokens").value)));
+    };
+};
