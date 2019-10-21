@@ -13,6 +13,9 @@ function tokenize(input) {
         throw new Error();
     });
 }
+function stringifyTokens(tokens) {
+    return tokens.map(x => x.path + x.value).join(" ");
+}
 function stringifySlash(tokens) {
     return tokens.map(x => serialize(x.value)).join("\n");
     function serialize(tree, path = "") {
@@ -128,17 +131,21 @@ function $(id) { return document.getElementById(id); }
 function update() {
     $("error").innerText = "";
     try {
-        let trees = parse(tokenize($("input").value));
+        let tokens = tokenize($("input").value);
+        let trees = parse(tokens);
         //$("tree").innerText = stringifyTree()[0].value;
+        $("tokens").innerText = stringifyTokens(tokens);
         $("slash").innerText = stringifySlash(trees);
         $("bracket").innerText = stringifyBracket(trees);
     }
     catch (e) {
         $("error").innerText = "Error: " + e.message;
+        $("tokens").innerText = "";
         $("slash").innerText = "";
         $("bracket").innerText = "";
     }
 }
 window.onload = () => {
     $("input").oninput = update;
+    update();
 };
